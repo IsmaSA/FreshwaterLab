@@ -78,40 +78,44 @@
   </div>
   <div class="map-container">
     <div id="floor-0" class="floor-map active">
-      <svg class="map-svg" viewBox="0 0 700 450">
-        <!-- Left vertical part (upper section) -->
-        <rect x="20" y="20" width="120" height="140" fill="#87CEEB" class="room" data-room="g_lab1"/>
-        <text x="80" y="95" class="room-label" text-anchor="middle">Computer Lab 1</text>
+      <svg class="map-svg" viewBox="0 0 700 500">
+        <!-- Left vertical section - outer rooms -->
+        <rect x="20" y="20" width="80" height="180" fill="#87CEEB" class="room" data-room="g_lab1"/>
+        <text x="60" y="115" class="room-label" text-anchor="middle">Lab 1</text>
         
-        <!-- Horizontal corridor (left side) -->
-        <rect x="20" y="170" width="120" height="60" fill="#f0f0f0" stroke="#999" stroke-width="1"/>
-        <text x="80" y="205" class="room-label" text-anchor="middle" fill="#999">Corridor</text>
+        <rect x="20" y="310" width="80" height="170" fill="#DDA0DD" class="room" data-room="g_office1"/>
+        <text x="60" y="400" class="room-label" text-anchor="middle">Office G1</text>
         
-        <!-- Left vertical part (lower section) -->
-        <rect x="20" y="240" width="120" height="140" fill="#DDA0DD" class="room" data-room="g_office1"/>
-        <text x="80" y="315" class="room-label" text-anchor="middle">Office G1</text>
+        <!-- Corridor - continuous L-shape -->
+        <rect x="110" y="20" width="70" height="460" fill="#f0f0f0" stroke="#999" stroke-width="2"/>
+        <text x="145" y="255" class="room-label" text-anchor="middle" fill="#999" transform="rotate(-90 145 255)">Corridor</text>
         
-        <!-- Horizontal part (upper row) -->
-        <rect x="150" y="170" width="150" height="130" fill="#90EE90" class="room" data-room="g_entrance"/>
-        <text x="225" y="240" class="room-label" text-anchor="middle">Entrance</text>
+        <rect x="190" y="410" width="380" height="70" fill="#f0f0f0" stroke="#999" stroke-width="2"/>
+        <text x="380" y="450" class="room-label" text-anchor="middle" fill="#999">Corridor</text>
         
-        <rect x="310" y="170" width="150" height="130" fill="#87CEEB" class="room" data-room="g_lab2"/>
-        <text x="385" y="240" class="room-label" text-anchor="middle">Computer Lab 2</text>
+        <!-- Left vertical section - inner rooms -->
+        <rect x="190" y="20" width="120" height="180" fill="#90EE90" class="room" data-room="g_entrance"/>
+        <text x="250" y="115" class="room-label" text-anchor="middle">Entrance</text>
         
-        <!-- Horizontal corridor (bottom) -->
-        <rect x="150" y="310" width="310" height="60" fill="#f0f0f0" stroke="#999" stroke-width="1"/>
-        <text x="305" y="345" class="room-label" text-anchor="middle" fill="#999">Corridor</text>
+        <rect x="190" y="210" width="120" height="190" fill="#87CEEB" class="room" data-room="g_lab2"/>
+        <text x="250" y="310" class="room-label" text-anchor="middle">Lab 2</text>
         
-        <!-- Horizontal part (lower row) -->
-        <rect x="150" y="380" width="150" height="50" fill="#DDA0DD" class="room" data-room="g_office2"/>
-        <text x="225" y="410" class="room-label" text-anchor="middle">Office G2</text>
+        <!-- Right horizontal section -->
+        <rect x="320" y="20" width="125" height="180" fill="#DDA0DD" class="room" data-room="g_office2"/>
+        <text x="382" y="115" class="room-label" text-anchor="middle">Office G2</text>
         
-        <rect x="310" y="380" width="150" height="50" fill="#87CEEB" class="room" data-room="g_lab3"/>
-        <text x="385" y="410" class="room-label" text-anchor="middle">Lab 3</text>
+        <rect x="455" y="20" width="115" height="180" fill="#87CEEB" class="room" data-room="g_lab3"/>
+        <text x="512" y="115" class="room-label" text-anchor="middle">Lab 3</text>
         
-        <!-- Stairs (right side) -->
-        <rect x="470" y="170" width="100" height="260" fill="#FFA500" class="room" data-room="g_stairs"/>
-        <text x="520" y="305" class="room-label" text-anchor="middle">Stairs</text>
+        <rect x="320" y="210" width="125" height="190" fill="#DDA0DD" class="room" data-room="g_office3"/>
+        <text x="382" y="310" class="room-label" text-anchor="middle">Office G3</text>
+        
+        <rect x="455" y="210" width="115" height="190" fill="#87CEEB" class="room" data-room="g_lab4"/>
+        <text x="512" y="310" class="room-label" text-anchor="middle">Lab 4</text>
+        
+        <!-- Stairs (far right) -->
+        <rect x="580" y="20" width="100" height="460" fill="#FFA500" class="room" data-room="g_stairs"/>
+        <text x="630" y="255" class="room-label" text-anchor="middle">Stairs</text>
       </svg>
       <div class="legend">
         <div class="legend-item"><div class="legend-box" style="background:#87CEEB;"></div> Lab</div>
@@ -121,40 +125,44 @@
       </div>
     </div>
     <div id="floor-1" class="floor-map">
-      <svg class="map-svg" viewBox="0 0 700 450">
-        <!-- Left vertical part (upper section) -->
-        <rect x="20" y="20" width="120" height="140" fill="#87CEEB" class="room" data-room="f1_lab1"/>
-        <text x="80" y="95" class="room-label" text-anchor="middle">AI Lab</text>
+      <svg class="map-svg" viewBox="0 0 700 500">
+        <!-- Left vertical section - outer rooms -->
+        <rect x="20" y="20" width="80" height="180" fill="#87CEEB" class="room" data-room="f1_lab1"/>
+        <text x="60" y="115" class="room-label" text-anchor="middle">AI Lab</text>
         
-        <!-- Horizontal corridor (left side) -->
-        <rect x="20" y="170" width="120" height="60" fill="#f0f0f0" stroke="#999" stroke-width="1"/>
-        <text x="80" y="205" class="room-label" text-anchor="middle" fill="#999">Corridor</text>
+        <rect x="20" y="310" width="80" height="170" fill="#DDA0DD" class="room" data-room="f1_office1"/>
+        <text x="60" y="400" class="room-label" text-anchor="middle">Office 1A</text>
         
-        <!-- Left vertical part (lower section) -->
-        <rect x="20" y="240" width="120" height="140" fill="#DDA0DD" class="room" data-room="f1_office1"/>
-        <text x="80" y="315" class="room-label" text-anchor="middle">Office 1A</text>
+        <!-- Corridor - continuous L-shape -->
+        <rect x="110" y="20" width="70" height="460" fill="#f0f0f0" stroke="#999" stroke-width="2"/>
+        <text x="145" y="255" class="room-label" text-anchor="middle" fill="#999" transform="rotate(-90 145 255)">Corridor</text>
         
-        <!-- Horizontal part (upper row) -->
-        <rect x="150" y="170" width="150" height="130" fill="#87CEEB" class="room" data-room="f1_lab2"/>
-        <text x="225" y="240" class="room-label" text-anchor="middle">Robotics Lab</text>
+        <rect x="190" y="410" width="380" height="70" fill="#f0f0f0" stroke="#999" stroke-width="2"/>
+        <text x="380" y="450" class="room-label" text-anchor="middle" fill="#999">Corridor</text>
         
-        <rect x="310" y="170" width="150" height="130" fill="#DDA0DD" class="room" data-room="f1_office2"/>
-        <text x="385" y="240" class="room-label" text-anchor="middle">Office 1B</text>
+        <!-- Left vertical section - inner rooms -->
+        <rect x="190" y="20" width="120" height="180" fill="#87CEEB" class="room" data-room="f1_lab2"/>
+        <text x="250" y="115" class="room-label" text-anchor="middle">Robotics Lab</text>
         
-        <!-- Horizontal corridor (bottom) -->
-        <rect x="150" y="310" width="310" height="60" fill="#f0f0f0" stroke="#999" stroke-width="1"/>
-        <text x="305" y="345" class="room-label" text-anchor="middle" fill="#999">Corridor</text>
+        <rect x="190" y="210" width="120" height="190" fill="#DDA0DD" class="room" data-room="f1_office2"/>
+        <text x="250" y="310" class="room-label" text-anchor="middle">Office 1B</text>
         
-        <!-- Horizontal part (lower row) -->
-        <rect x="150" y="380" width="150" height="50" fill="#87CEEB" class="room" data-room="f1_lab3"/>
-        <text x="225" y="410" class="room-label" text-anchor="middle">IoT Lab</text>
+        <!-- Right horizontal section -->
+        <rect x="320" y="20" width="125" height="180" fill="#87CEEB" class="room" data-room="f1_lab3"/>
+        <text x="382" y="115" class="room-label" text-anchor="middle">IoT Lab</text>
         
-        <rect x="310" y="380" width="150" height="50" fill="#DDA0DD" class="room" data-room="f1_office3"/>
-        <text x="385" y="410" class="room-label" text-anchor="middle">Office 1C</text>
+        <rect x="455" y="20" width="115" height="180" fill="#DDA0DD" class="room" data-room="f1_office3"/>
+        <text x="512" y="115" class="room-label" text-anchor="middle">Office 1C</text>
         
-        <!-- Stairs (right side) -->
-        <rect x="470" y="170" width="100" height="260" fill="#FFA500" class="room" data-room="f1_stairs"/>
-        <text x="520" y="305" class="room-label" text-anchor="middle">Stairs</text>
+        <rect x="320" y="210" width="125" height="190" fill="#DDA0DD" class="room" data-room="f1_office4"/>
+        <text x="382" y="310" class="room-label" text-anchor="middle">Office 1D</text>
+        
+        <rect x="455" y="210" width="115" height="190" fill="#87CEEB" class="room" data-room="f1_lab4"/>
+        <text x="512" y="310" class="room-label" text-anchor="middle">Lab 1E</text>
+        
+        <!-- Stairs (far right) -->
+        <rect x="580" y="20" width="100" height="460" fill="#FFA500" class="room" data-room="f1_stairs"/>
+        <text x="630" y="255" class="room-label" text-anchor="middle">Stairs</text>
       </svg>
       <div class="legend">
         <div class="legend-item"><div class="legend-box" style="background:#87CEEB;"></div> Lab</div>
@@ -217,19 +225,23 @@
 </div>
 <script>
 const roomData = {
-  g_lab1: {title:"Computer Lab 1", description:"30 workstations", type:"lab"},
+  g_lab1: {title:"Lab 1", description:"Computer workstations", type:"lab"},
   g_office1: {title:"Office G1", description:"Administrative staff", type:"office", staff:[{name:"Staff Member A", email:"staffa@faculty.edu", phone:"555-0001"}]},
-  g_lab2: {title:"Computer Lab 2", description:"25 workstations", type:"lab"},
   g_entrance: {title:"Main Entrance", description:"Building entry with reception"},
-  g_office2: {title:"Office G2", description:"Administrative support", type:"office", staff:[{name:"Staff Member B", email:"staffb@faculty.edu", phone:"555-0002"}]},
-  g_lab3: {title:"Computer Lab 3", description:"20 workstations", type:"lab"},
+  g_lab2: {title:"Lab 2", description:"Research laboratory", type:"lab"},
+  g_office2: {title:"Office G2", description:"Faculty office", type:"office", staff:[{name:"Staff Member B", email:"staffb@faculty.edu", phone:"555-0002"}]},
+  g_lab3: {title:"Lab 3", description:"Computer lab", type:"lab"},
+  g_office3: {title:"Office G3", description:"Administrative support", type:"office", staff:[{name:"Staff Member C", email:"staffc@faculty.edu", phone:"555-0003"}]},
+  g_lab4: {title:"Lab 4", description:"Testing lab", type:"lab"},
   g_stairs: {title:"Stairs", description:"Access to all floors"},
   f1_lab1: {title:"AI Lab", description:"Machine learning & neural networks", type:"lab"},
-  f1_office1: {title:"Office 1A", description:"Faculty office", type:"office", staff:[{name:"Prof. John Doe", email:"jdoe@faculty.edu", phone:"555-1001"},{name:"Dr. Jane Smith", email:"jsmith@faculty.edu", phone:"555-1002"}]},
+  f1_office1: {title:"Office 1A", description:"Faculty office", type:"office", staff:[{name:"Prof. John Doe", email:"jdoe@faculty.edu", phone:"555-1001"}]},
   f1_lab2: {title:"Robotics Lab", description:"Autonomous systems research", type:"lab"},
-  f1_office2: {title:"Office 1B", description:"Faculty office", type:"office", staff:[{name:"Prof. Alice Brown", email:"abrown@faculty.edu", phone:"555-1003"}]},
+  f1_office2: {title:"Office 1B", description:"Faculty office", type:"office", staff:[{name:"Dr. Jane Smith", email:"jsmith@faculty.edu", phone:"555-1002"}]},
   f1_lab3: {title:"IoT Lab", description:"Internet of Things development", type:"lab"},
-  f1_office3: {title:"Office 1C", description:"Research coordinator", type:"office", staff:[{name:"Dr. Tom Wilson", email:"twilson@faculty.edu", phone:"555-1004"}]},
+  f1_office3: {title:"Office 1C", description:"Research coordinator", type:"office", staff:[{name:"Prof. Alice Brown", email:"abrown@faculty.edu", phone:"555-1003"}]},
+  f1_office4: {title:"Office 1D", description:"Faculty office", type:"office", staff:[{name:"Dr. Tom Wilson", email:"twilson@faculty.edu", phone:"555-1004"}]},
+  f1_lab4: {title:"Lab 1E", description:"Development lab", type:"lab"},
   f1_stairs: {title:"Stairs", description:"Access to all floors"},
   f2_office_201: {title:"Office 201", description:"Research staff", type:"office", staff:[{name:"Dr. Mark Lee", email:"mlee@faculty.edu", phone:"555-2001"},{name:"Dr. Sarah Chen", email:"schen@faculty.edu", phone:"555-2002"}]},
   f2_lab_202: {title:"Lab 202", description:"Data Science Lab", type:"lab"},
