@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Faculty Building Map</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Helvetica, Arial; margin: 20px; background: #f1f4f9; }
+    .container { max-width: 1400px; margin: auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0px 8px 32px rgba(0,0,0,0.15);}
+    .header { padding: 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; }
+    .header h1 { margin:0; }
+    .header p { margin:8px 0 0; opacity:0.95; }
+    .floor-selector { display:flex; gap:10px; padding:15px; background:#fafbfe; border-bottom:1px solid #ddd;}
+    .floor-btn { padding:8px 14px; border-radius:8px; border:1px solid #ddd; background:#fff; cursor:pointer; font-weight:600; transition:0.2s; }
+    .floor-btn.active { background:linear-gradient(135deg, #667eea, #764ba2); border-color:#667eea; color:#fff; }
+    .map-container { padding:20px; }
+
+    /* Floor switching - CRITICAL */
+    .floor-map { display:none !important; }
+    .floor-map.active { display:block !important; }
+
+    .map-svg { width:100%; max-width:1100px; display:block; margin:auto; border:2px solid #ccc; border-radius:8px; background:#fefefe; }
+    .room { cursor:pointer; transition:0.2s; stroke:#333; stroke-width:1.5; }
+    .room:hover { opacity:0.75; filter:brightness(1.1); }
+    .room-label { font-size:11px; font-weight:700; pointer-events:none; fill:#222; }
+    .info-panel { margin-top:20px; padding:15px; border:1px solid #ddd; border-radius:8px; background:#fafbfe; }
+    .info-panel h3 { margin:0 0 8px; color:#334155; }
+    .info-panel p { margin:4px 0; color:#475569; }
+    .staff-list { margin-top:10px; }
+    .staff-item { padding:8px; margin:6px 0; background:#fff; border:1px solid #e5e7eb; border-radius:6px; }
+    .staff-item strong { color:#1e293b; }
+    .staff-item a { margin-left:8px; color:#667eea; text-decoration:none; font-weight:600; }
+    .staff-item a:hover { text-decoration:underline; }
+
+    .calendar-panel { margin-top:20px; padding:12px; border:1px solid #ddd; border-radius:10px; background:#fff; display:none; }
+
+    /* Calendar */
+    .calendar-header { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap; }
+    .calendar-left { display:flex; align-items:center; gap:8px; }
+    .calendar-title { font-weight:800; color:#334155; }
+    .calendar-nav { display:flex; gap:6px; flex-wrap:wrap; }
+    .btn { border:1px solid #d1d5db; background:#f8fafc; padding:6px 10px; border-radius:8px; cursor:pointer; font-weight:600; transition:0.2s; }
+    .btn:hover { background:#e2e8f0; }
+    .btn.primary { background:#667eea; color:white; border-color:#667eea; }
+    .btn.primary:hover { background:#5568d3; }
+    .btn.danger { background:#ef4444; color:white; border-color:#ef4444; }
+    .btn.danger:hover { background:#dc2626; }
+    .btn.ghost { background:white; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .calendar-grid { display:grid; grid-template-columns: repeat(7, 1fr); gap:6px; }
+    .weekday { text-align:center; font-size:12px; font-weight:800; color:#64748b; padding:6px 0; }
+    .calendar-cell { border:1px solid #e5e7eb; background:#f8fafc; border-radius:8px; min-height:72px; padding:6px; cursor:pointer; display:flex; flex-direction:column; transition: box-shadow 0.2s, transform 0.05s; }
+    .calendar-cell:hover { box-shadow: 0 0 0 2px #c7d2fe inset; }
+    .calendar-cell .date { font-weight:700; font-size:12px; color:#475569; }
+    .calendar-cell .event { margin-top:4px; padding:4px 6px; border-radius:6px; font-size:11px; font-weight:700; color:white; word-wrap:break-word; }
+    .event-available { background:#22c55e; }
+    .event-occupied { background:#ef4444; }
+    .event-experiment { background:#f59e0b; }
+
+    .selected { outline: 2px solid #6366f1; background:#eef2ff; transform: translateY(-1px); }
+
+    /* Modal */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 30; }
+    .modal { width: 96%; max-width: 420px; background: #fff; border-radius: 12px; box-shadow: 0 20px 70px rgba(0,0,0,0.3); padding: 16px; }
+    .modal h4 { margin: 0 0 12px; color: #334155; }
+    .modal .row { display: grid; gap: 8px; margin-bottom: 10px; }
+    .modal label { font-size: 12px; color: #475569; font-weight: 700; }
+    .modal select, .modal input, .modal textarea { border: 1px solid #dfe3ef; border-radius: 8px; padding: 8px; font-size: 14px; width: 100%; box-sizing:border-box; }
+    .modal-actions { display: flex; justify-content: space-between; align-items:center; gap: 8px; margin-top: 8px; }
+    .modal-actions-right { display:flex; gap:8px; }
+
+    /* Legend */
+    .legend { display:flex; gap:16px; margin-top:12px; font-size:13px; flex-wrap:wrap; }
+    .legend-item { display:flex; align-items:center; gap:6px; }
+    .legend-box { width:20px; height:20px; border-radius:4px; border:1px solid #333; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🏢 Faculty Building Interactive Map</h1>
+    <p>Switch floors, click rooms to view details. Labs open a booking calendar with multi-day notes.</p>
+  </div>
+  <div class="floor-selector">
+    <button class="floor-btn active" data-floor="0">Ground Floor</button>
+    <button class="floor-btn" data-floor="1">1st Floor</button>
+    <button class="floor-btn" data-floor="2">2nd Floor</button>
+  </div>
+  <div class="map-container">
+
+    <!-- Ground Floor: Inverted L (rotated 180°) -->
+    <div id="floor-0" class="floor-map active">
+      <svg class="map-svg" viewBox="0 0 600 400">
+        <!-- Horizontal part (top) -->
+        <rect x="50" y="50" width="200" height="100" fill="#87CEEB" class="room" data-room="g_lab1"/>
+        <text x="150" y="105" class="room-label" text-anchor="middle">Computer Lab 1</text>
+        
+        <rect x="260" y="50" width="200" height="100" fill="#87CEEB" class="room" data-room="g_lab2"/>
+        <text x="360" y="105" class="room-label" text-anchor="middle">Computer Lab 2</text>
+
+        <!-- Vertical part (right side going down) -->
+        <rect x="360" y="160" width="100" height="100" fill="#DDA0DD" class="room" data-room="g_office1"/>
+        <text x="410" y="215" class="room-label" text-anchor="middle">Office G1</text>
+
+        <rect x="360" y="270" width="100" height="80" fill="#90EE90" class="room" data-room="g_entrance"/>
+        <text x="410" y="315" class="room-label" text-anchor="middle">Entrance</text>
+
+        <!-- Corridor -->
+        <rect x="260" y="160" width="90" height="190" fill="#f0f0f0" stroke="#999" stroke-width="1"/>
+        <text x="305" y="260" class="room-label" text-anchor="middle" fill="#999">Corridor</text>
+      </svg>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-box" style="background:#87CEEB;"></div> Lab</div>
+        <div class="legend-item"><div class="legend-box" style="background:#DDA0DD;"></div> Office</div>
+        <div class="legend-item"><div class="legend-box" style="background:#90EE90;"></div> Entrance</div>
+        <div class="legend-item"><div class="legend-box" style="background:#FFA500;"></div> Stairs</div>
+      </div>
+    </div>
+
+    <!-- 1st Floor: Inverted L (rotated 180°) -->
+    <div id="floor-1" class="floor-map">
+      <svg class="map-svg" viewBox="0 0 600 400">
+        <!-- Horizontal part -->
+        <rect x="50" y="50" width="200" height="100" fill="#87CEEB" class="room" data-room="f1_lab1"/>
+        <text x="150" y="105" class="room-label" text-anchor="middle">AI Lab</text>
+        
+        <rect x="260" y="50" width="200" height="100" fill="#87CEEB" class="room" data-room="f1_lab2"/>
+        <text x="360" y="105" class="room-label" text-anchor="middle">Robotics Lab</text>
+
+        <!-- Vertical part -->
+        <rect x="360" y="160" width="100" height="100" fill="#DDA0DD" class="room" data-room="f1_office1"/>
+        <text x="410" y="215" class="room-label" text-anchor="middle">Office 1A</text>
+
+        <rect x="360" y="270" width="100" height="80" fill="#DDA0DD" class="room" data-room="f1_office2"/>
+        <text x="410" y="315" class="room-label" text-anchor="middle">Office 1B</text>
+
+        <!-- Corridor -->
+        <rect x="260" y="160" width="90" height="190" fill="#f0f0f0" stroke="#999" stroke-width="1"/>
+        <text x="305" y="260" class="room-label" text-anchor="middle" fill="#999">Corridor</text>
+      </svg>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-box" style="background:#87CEEB;"></div> Lab</div>
+        <div class="legend-item"><div class="legend-box" style="background:#DDA0DD;"></div> Office</div>
+      </div>
+    </div>
+
+    <!-- 2nd Floor: Corridor left, Stairs right, Offices & Labs -->
+    <div id="floor-2" class="floor-map">
+      <svg class="map-svg" viewBox="0 0 700 400">
+        <!-- Corridor (flush left) -->
+        <rect x="20" y="20" width="60" height="360" fill="#f0f0f0" stroke="#999" stroke-width="1"/>
+        <text x="50" y="205" class="room-label" text-anchor="middle" fill="#999" transform="rotate(-90 50 205)">Corridor</text>
+
+        <!-- Left side rooms -->
+        <rect x="90" y="20" width="140" height="85" fill="#DDA0DD" class="room" data-room="f2_office_201"/>
+        <text x="160" y="67" class="room-label" text-anchor="middle">Office 201</text>
+
+        <rect x="90" y="115" width="140" height="85" fill="#DDA0DD" class="room" data-room="f2_office_202"/>
+        <text x="160" y="162" class="room-label" text-anchor="middle">Office 202</text>
+
+        <rect x="90" y="210" width="140" height="85" fill="#87CEEB" class="room" data-room="f2_lab_203"/>
+        <text x="160" y="257" class="room-label" text-anchor="middle">Lab 203</text>
+
+        <rect x="90" y="305" width="140" height="75" fill="#87CEEB" class="room" data-room="f2_lab_204"/>
+        <text x="160" y="347" class="room-label" text-anchor="middle">Lab 204</text>
+
+        <!-- Right side rooms -->
+        <rect x="240" y="20" width="140" height="85" fill="#DDA0DD" class="room" data-room="f2_office_205"/>
+        <text x="310" y="67" class="room-label" text-anchor="middle">Office 205</text>
+
+        <rect x="240" y="115" width="140" height="85" fill="#87CEEB" class="room" data-room="f2_lab_206"/>
+        <text x="310" y="162" class="room-label" text-anchor="middle">Lab 206</text>
+
+        <rect x="240" y="210" width="140" height="85" fill="#87CEEB" class="room" data-room="f2_lab_207"/>
+        <text x="310" y="257" class="room-label" text-anchor="middle">Lab 207</text>
+
+        <rect x="240" y="305" width="140" height="75" fill="#DDA0DD" class="room" data-room="f2_office_208"/>
+        <text x="310" y="347" class="room-label" text-anchor="middle">Office 208</text>
+
+        <!-- Stairs (full right side) -->
+        <rect x="390" y="20" width="120" height="360" fill="#FFA500" class="room" data-room="f2_stairs"/>
+        <text x="450" y="205" class="room-label" text-anchor="middle">Stairs</text>
+      </svg>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-box" style="background:#87CEEB;"></div> Lab</div>
+        <div class="legend-item"><div class="legend-box" style="background:#DDA0DD;"></div> Office</div>
+        <div class="legend-item"><div class="legend-box" style="background:#FFA500;"></div> Stairs</div>
+      </div>
+    </div>
+
+    <div id="info-panel" class="info-panel">Click a room to see details</div>
+    <div id="calendar-panel" class="calendar-panel"></div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal" role="dialog" aria-modal="true">
+    <h4 id="modal-title">Edit Day</h4>
+    <div class="row">
+      <label for="status-select">Status</label>
+      <select id="status-select">
+        <option value="available">Available</option>
+        <option value="occupied">Occupied</option>
+        <option value="experiment">Experiment running</option>
+      </select>
+    </div>
+    <div class="row">
+      <label for="note-input">Note</label>
+      <textarea id="note-input" rows="3" placeholder="Add a note for this day..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <div>
+        <button class="btn danger" id="delete-event">Clear</button>
+      </div>
+      <div class="modal-actions-right">
+        <button class="btn" id="cancel-event">Cancel</button>
+        <button class="btn primary" id="save-event">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Room data
+const roomData = {
+  // Ground Floor
+  g_lab1: {title:"Computer Lab 1", description:"30 workstations", type:"lab"},
+  g_lab2: {title:"Computer Lab 2", description:"25 workstations", type:"lab"},
+  g_office1: {title:"Office G1", description:"Administrative staff", type:"office", staff:[
+    {name:"Staff Member A", email:"staffa@faculty.edu", phone:"555-0001"}
+  ]},
+  g_entrance: {title:"Main Entrance", description:"Building entry with reception"},
+
+  // 1st Floor
+  f1_lab1: {title:"AI Lab", description:"Machine learning & neural networks", type:"lab"},
+  f1_lab2: {title:"Robotics Lab", description:"Autonomous systems research", type:"lab"},
+  f1_office1: {title:"Office 1A", description:"Faculty office", type:"office", staff:[
+    {name:"Prof. John Doe", email:"jdoe@faculty.edu", phone:"555-1001"},
+    {name:"Dr. Jane Smith", email:"jsmith@faculty.edu", phone:"555-1002"}
+  ]},
+  f1_office2: {title:"Office 1B", description:"Faculty office", type:"office", staff:[
+    {name:"Prof. Alice Brown", email:"abrown@faculty.edu", phone:"555-1003"}
+  ]},
+
+  // 2nd Floor
+  f2_office_201: {title:"Office 201", description:"Research staff", type:"office", staff:[
+    {name:"Dr. Mark Lee", email:"mlee@faculty.edu", phone:"555-2001"},
+    {name:"Dr. Sarah Chen", email:"schen@faculty.edu", phone:"555-2002"}
+  ]},
+  f2_office_202: {title:"Office 202", description:"Faculty office", type:"office", staff:[
+    {name:"Prof. David Kim", email:"dkim@faculty.edu", phone:"555-2003"}
+  ]},
+  f2_lab_203: {title:"Lab 203", description:"Data Science Lab", type:"lab"},
+  f2_lab_204: {title:"Lab 204", description:"Cybersecurity Lab", type:"lab"},
+  f2_office_205: {title:"Office 205", description:"Faculty office", type:"office", staff:[
+    {name:"Prof. Emily White", email:"ewhite@faculty.edu", phone:"555-2005"}
+  ]},
+  f2_lab_206: {title:"Lab 206", description:"Software Engineering Lab", type:"lab"},
+  f2_lab_207: {title:"Lab 207", description:"Computer Vision Lab", type:"lab"},
+  f2_office_208: {title:"Office 208", description:"Graduate students", type:"office", staff:[
+    {name:"TA Michael Green", email:"mgreen@faculty.edu", phone:"555-2008"}
+  ]},
+  f2_stairs: {title:"Stairs", description:"Access to all floors"}
+};
+
+// Calendar state - using in-memory storage instead of localStorage
+let calendarStorage = {};
+let calState = {lab:null, year:null, month:null, multi:false, selected:new Set(), selectedDay:null};
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  // Floor button listeners
+  document.querySelectorAll('.floor-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      const floorNum = this.getAttribute('data-floor');
+      showFloor(floorNum);
+    });
+  });
+
+  // Room click listeners
+  document.querySelectorAll('.room').forEach(room => {
+    room.addEventListener('click', function(e) {
+      const roomId = this.getAttribute('data-room');
+      if (roomId) {
+        showRoomInfo(roomId);
+      }
+    });
+  });
+
+  // Modal event listeners
+  document.getElementById('cancel-event').addEventListener('click', closeModal);
+  document.getElementById('modal-backdrop').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+  document.getElementById('save-event').addEventListener('click', saveEvent);
+  document.getElementById('delete-event').addEventListener('click', deleteEvent);
+});
+
+// Floor switching
+function showFloor(floorNum) {
+  // Hide all floors
+  document.querySelectorAll('.floor-map').forEach(f => {
+    f.classList.remove('active');
+  });
+  
+  // Show selected floor
+  const targetFloor = document.getElementById('floor-' + floorNum);
+  if (targetFloor) {
+    targetFloor.classList.add('active');
+  }
+  
+  // Update button states
+  document.querySelectorAll('.floor-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.getAttribute('data-floor') === floorNum) {
+      btn.classList.add('active');
+    }
+  });
+  
+  // Reset info panel
+  document.getElementById('info-panel').innerHTML = "Click a room to view details";
+  hideCalendar();
+}
+
+// Room info display
+function showRoomInfo(id) {
+  const r = roomData[id];
+  if (!r) return;
+  
+  let html = `<h3>${r.title}</h3><p>${r.description}</p>`;
+  
+  if (r.staff && r.staff.length > 0) {
+    html += `<div class="staff-list"><strong>Contact:</strong>`;
+    r.staff.forEach(s => {
+      html += `<div class="staff-item"><strong>${s.name}</strong>`;
+      html += `<a href="mailto:${s.email}">📧 Email</a>`;
+      html += `<a href="tel:${s.phone}">📞 ${s.phone}</a>`;
+      html += `</div>`;
+    });
+    html += `</div>`;
+  }
+
+  document.getElementById('info-panel').innerHTML = html;
+  
+  if (r.type === "lab") {
+    showCalendar(id);
+  } else {
+    hideCalendar();
+  }
+}
+
+// Calendar functions
+function showCalendar(labId) {
+  const now = new Date();
+  calState.lab = labId; 
+  calState.year = now.getFullYear(); 
+  calState.month = now.getMonth();
+  calState.multi = false; 
+  calState.selected = new Set(); 
+  calState.selectedDay = null;
+  renderCalendar(); 
+  document.getElementById('calendar-panel').style.display = 'block';
+}
+
+function hideCalendar() { 
+  document.getElementById('calendar-panel').style.display = 'none'; 
+  document.getElementById('calendar-panel').innerHTML = ''; 
+  calState = {lab:null, year:null, month:null, multi:false, selected:new Set(), selectedDay:null};
+}
+
+function storageKey() {
+  return `labcal_${calState.lab}_${calState.year}_${calState.month}`;
+}
+
+function loadData() {
+  return calendarStorage[storageKey()] || {};
+}
+
+function saveData(d) {
+  calendarStorage[storageKey()] = d;
+}
+
+function monthName(y, m) {
+  return new Date(y, m, 1).toLocaleString(undefined, {month:'long', year:'numeric'});
+}
+
+function renderCalendar() {
+  const y = calState.year, m = calState.month; 
+  const first = new Date(y, m, 1);
+  const days = new Date(y, m + 1, 0).getDate(); 
+  const start = (first.getDay() + 6) % 7;
+  const data = loadData();
+
+  let html = `<div class="calendar-header">
+    <div class="calendar-left">
+      <button class="btn" onclick="changeMonth(-1)">◀</button>
+      <div class="calendar-title">${roomData[calState.lab].title} — ${monthName(y, m)}</div>
+      <button class="btn" onclick="changeMonth(1)">▶</button>
+    </div>
+    <div class="calendar-nav">
+      <button class="btn ghost" onclick="toggleMultiSelect()">${calState.multi ? 'Multi-select: ON' : 'Multi-select: OFF'}</button>
+      <button class="btn" onclick="openBulkModal()" ${calState.selected.size === 0 ? 'disabled' : ''}>Add note to ${calState.selected.size || ''} day(s)</button>
+      <button class="btn danger" onclick="clearSelected()" ${calState.selected.size === 0 ? 'disabled' : ''}>Clear selected</button>
+    </div></div>`;
+
+  html += '<div class="calendar-grid">';
+  ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].forEach(d => html += `<div class="weekday">${d}</div>`);
+  
+  for (let i = 0; i < start; i++) html += '<div></div>';
+  
+  for (let d = 1; d <= days; d++) {
+    const ev = data[d]; 
+    const sel = calState.selected.has(d);
+    html += `<div class="calendar-cell ${sel ? 'selected' : ''}" onclick="dayClick(${d})"><div class="date">${d}</div>`;
+    if (ev) {
+      html += `<div class="event event-${ev.status}">${capitalize(ev.status)}${ev.note ? ' — ' + escapeHtml(ev.note) : ''}</div>`;
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  document.getElementById('calendar-panel').innerHTML = html;
+}
+
+function capitalize(s) {
+  return (s || '').replace(/^\w/, c => c.toUpperCase());
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function changeMonth(delta) {
+  calState.month += delta;
+  if (calState.month < 0) {
+    calState.month = 11;
+    calState.year--;
+  }
+  if (calState.month > 11) {
+    calState.month = 0;
+    calState.year++;
+  }
+  calState.selected.clear();
+  renderCalendar();
+}
+
+function toggleMultiSelect() {
+  calState.multi = !calState.multi;
+  if (!calState.multi) calState.selected.clear();
+  renderCalendar();
+}
+
+function clearSelected() {
+  calState.selected.clear();
+  renderCalendar();
+}
+
+function dayClick(d) {
+  if (calState.multi) {
+    if (calState.selected.has(d)) {
+      calState.selected.delete(d);
+    } else {
+      calState.selected.add(d);
+    }
+    renderCalendar();
+  } else {
+    openDayModal(d);
+  }
+}
+
+// Modal functions
+function openDayModal(day) {
+  calState.selectedDay = day; 
+  const data = loadData();
+  const ev = data[day] || {status:'available', note:''};
+  document.getElementById('status-select').value = ev.status || 'available'; 
+  document.getElementById('note-input').value = ev.note || '';
+  document.getElementById('modal-title').textContent = `${roomData[calState.lab].title} — ${monthName(calState.year, calState.month)} ${day}`;
+  document.getElementById('modal-backdrop').style.display = 'flex';
+}
+
+function openBulkModal() {
+  if (calState.selected.size === 0) return;
+  calState.selectedDay = null;
+  document.getElementById('status-select').value = 'available';
+  document.getElementById('note-input').value = '';
+  document.getElementById('modal-title').textContent = `Add note to ${calState.selected.size} day(s) — ${monthName(calState.year, calState.month)}`;
+  document.getElementById('modal-backdrop').style.display = 'flex';
+}
+
+function closeModal() {
+  document.getElementById('modal-backdrop').style.display = 'none';
+}
+
+function saveEvent() {
+  const data = loadData();
+  const status = document.getElementById('status-select').value;
+  const note = document.getElementById('note-input').value.trim();
+  
+  if (calState.selectedDay) {
+    data[calState.selectedDay] = {status, note};
+  } else if (calState.selected.size > 0) {
+    calState.selected.forEach(day => {
+      data[day] = {status, note};
+    });
+    calState.selected.clear();
+  }
+  
+  saveData(data);
+  closeModal();
+  renderCalendar();
+}
+
+function deleteEvent() {
+  const data = loadData();
+  
+  if (calState.selectedDay) {
+    delete data[calState.selectedDay];
+  } else if (calState.selected.size > 0) {
+    calState.selected.forEach(day => delete data[day]);
+    calState.selected.clear();
+  }
+  
+  saveData(data);
+  closeModal();
+  renderCalendar();
+}
+</script>
+</body>
+</html>
